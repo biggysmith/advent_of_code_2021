@@ -25,7 +25,7 @@ std::vector<command_t> load_input(const std::string& file){
     std::string line;
     while (std::getline(fs, line)) {
         size_t space = line.find_first_of(' ');
-        ret.push_back({ line.substr(0,space), std::stoi(line.substr(space+1,1)) } );
+        ret.push_back({ line.substr(0,space), std::stoi(line.substr(space+1)) } );
     }
     return ret;
 }
