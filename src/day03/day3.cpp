@@ -68,11 +68,8 @@ std::string filter(const std::vector<std::string>& src, int bitpos, bool is_oxy)
             zeros.push_back(reading);
         }
     }
-    if(is_oxy){
-        return filter(ones.size() >= zeros.size() ? ones : zeros, bitpos+1, is_oxy);
-    }else{
-        return filter(zeros.size() <= ones.size() ? zeros : ones, bitpos+1, is_oxy);
-    }
+
+    return filter(is_oxy ^ (ones.size() >= zeros.size()) ? ones : zeros, bitpos+1, is_oxy);
 };
 
 int part2(const std::vector<std::string>& readings){
