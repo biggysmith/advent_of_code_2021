@@ -37,7 +37,7 @@ int part1(const std::vector<std::string>& readings, int n){
     for(int i=0; i<n; ++i){
         int ones = 0;
         int zeros = 0;
-        for(auto reading : readings){
+        for(auto& reading : readings){
             if(reading[i] == '0'){
                 zeros++;
             }else{
