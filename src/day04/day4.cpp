@@ -72,7 +72,14 @@ bool check_for_line(const bingo_board_t& board){
     return false;
 }
 
+void clear_marked(bingo_data_t& data){
+    for(auto& board : data.boards){
+        std::fill(board.marked.begin(), board.marked.end(), 0);
+    }
+}
+
 int part1(bingo_data_t& data){
+    clear_marked(data);
     for(auto num : data.numbers){
         for(auto& board : data.boards){
             auto it = std::find(board.numbers.begin(), board.numbers.end(), num);
@@ -96,6 +103,7 @@ int part1(bingo_data_t& data){
 }
 
 int part2(bingo_data_t& data){
+   clear_marked(data);
    std::vector<int> winning_boards(data.boards.size(), 0);
    for(auto num : data.numbers){
         int board_num = 0;
