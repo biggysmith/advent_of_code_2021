@@ -16,7 +16,7 @@ std::vector<int> load_input(const std::string& file){
     return ret;
 }
 
-size_t part1(const std::vector<int>& crabs)
+int part1(const std::vector<int>& crabs)
 {
     int min_sum = INT_MAX;
     for(int i=0; i<crabs.size(); ++i)
@@ -32,7 +32,7 @@ size_t part1(const std::vector<int>& crabs)
     return min_sum;
 }
 
-size_t part2(const std::vector<int>& crabs)
+int part2(const std::vector<int>& crabs)
 {
     auto series = [](int n){
         return (n*(n+1))/2;
