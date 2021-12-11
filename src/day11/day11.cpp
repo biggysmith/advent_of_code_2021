@@ -38,8 +38,8 @@ int step(grid_t& grid, bool find_simultaneous_flash)
         grid.points[i]++;
     }
 
-    std::vector<bool> will_flash(num_points, 0);
-    std::vector<bool> has_flashed(num_points, 0);
+    std::vector<int> will_flash(num_points, 0);
+    std::vector<int> has_flashed(num_points, 0);
 
     do
     {
@@ -72,7 +72,7 @@ int step(grid_t& grid, bool find_simultaneous_flash)
         };
     }
 
-    if(find_simultaneous_flash ){
+    if(find_simultaneous_flash){
         return std::accumulate(grid.points.begin(), grid.points.end(), 0) == 0;
     }else{
         return std::accumulate(has_flashed.begin(), has_flashed.end(), 0);
