@@ -31,37 +31,8 @@ bool is_big_cave(const std::string& cave){
     return cave[0] >= 'A' && cave[0] <= 'Z';
 };
 
-bool valid_next_step(const std::string& cave, const std::vector<std::string>& path) {
+bool valid_next_step1(const std::string& cave, const std::vector<std::string>& path) {
     return is_big_cave(cave) || std::find(path.begin(), path.end(), cave) == path.end();
-}
-
-int bfs(graph_t& g, std::string src, std::string dst)
-{
-    int num_paths = 0;
-    std::queue<std::vector<std::string>> q;
-
-    std::vector<std::string> path;
-    path.push_back(src);
-    q.push(path);
-    while (!q.empty()) {
-        path = q.front();
-        q.pop();
-        std::string& last = path.back();
-
-        if (last == dst){      
-            num_paths++;
-        }
- 
-        for (auto& step : g[last]) {
-            if (valid_next_step(step, path)) {
-                std::vector<std::string> next_path(path);
-                next_path.push_back(step);
-                q.push(next_path);
-            }
-        }
-    }
-
-    return num_paths;
 }
 
 std::unordered_map<std::string,int> hist;
@@ -70,6 +41,10 @@ bool valid_next_step2(const std::string& cave, const std::vector<std::string>& p
 {
     if(is_big_cave(cave)){
         return true;
+    }
+
+    if(cave == "start"){
+        return false;
     }
 
     for(auto& h : hist){
@@ -86,7 +61,7 @@ bool valid_next_step2(const std::string& cave, const std::vector<std::string>& p
     return hist[cave] < (has_two_small_caves ? 1 : 2);
 }
 
-int bfs2(graph_t& g, const std::string& src, const std::string& dst)
+int bfs(graph_t& g, const std::string& src, const std::string& dst, bool (*valid_next_step)(const std::string&, const std::vector<std::string>&))
 {
     int num_paths = 0;
     std::queue<std::vector<std::string>> q;
@@ -104,12 +79,8 @@ int bfs2(graph_t& g, const std::string& src, const std::string& dst)
             continue;
         }
 
-        if (path.size()>1 && last == "start"){
-            continue;
-        }
- 
         for (auto& step : g[last]) {
-            if (valid_next_step2(step, path)) {
+            if (valid_next_step(step, path)) {
                 std::vector<std::string> next_path(path);
                 next_path.push_back(step);
                 q.push(next_path);
@@ -120,38 +91,34 @@ int bfs2(graph_t& g, const std::string& src, const std::string& dst)
     return num_paths;
 }
 
-void build_adjacency_graph(graph_t& g, const std::vector<connection_t>& connections)
+graph_t build_adjacency_graph(const std::vector<connection_t>& connections)
 {
+    graph_t g;
+
     for(auto& connection : connections)
     {
         if(g.find(connection.src) == g.end()){
             g[connection.src] = std::vector<std::string>();
         }
-
         g[connection.src].push_back(connection.dst);
 
         if(g.find(connection.dst) == g.end()){
             g[connection.dst] = std::vector<std::string>();
         }
-
         g[connection.dst].push_back(connection.src);
     }
+
+    return g;
 }
 
 int part1(const std::vector<connection_t>& connections)
 {
-    graph_t g;
-    build_adjacency_graph(g, connections);
-
-    return bfs(g, "start", "end");
+    return bfs(build_adjacency_graph(connections), "start", "end", valid_next_step1);
 }
 
 int part2(const std::vector<connection_t>& connections)
 {
-    graph_t g;
-    build_adjacency_graph(g, connections);
-
-    return bfs2(g, "start", "end");
+    return bfs(build_adjacency_graph(connections), "start", "end", valid_next_step2);
 }
 
 void main()
