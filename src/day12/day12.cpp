@@ -135,9 +135,8 @@ int part1(const std::vector<connection_t>& connections)
 {
     //return bfs(build_adjacency_graph(connections), "start", "end", valid_next_step1);
 
-    std::vector<std::string> path = { "start" };
     int num_paths = 0;
-    dfs(build_adjacency_graph(connections), path, num_paths, valid_next_step1);
+    dfs(build_adjacency_graph(connections), { "start" }, num_paths, valid_next_step1);
     return num_paths;
 }
 
@@ -145,9 +144,8 @@ int part2(const std::vector<connection_t>& connections)
 {
     //return bfs(build_adjacency_graph(connections), "start", "end", valid_next_step2);
 
-    std::vector<std::string> path = { "start" };
     int num_paths = 0;
-    dfs(build_adjacency_graph(connections), path, num_paths, valid_next_step2);
+    dfs(build_adjacency_graph(connections), { "start" }, num_paths, valid_next_step2);
     return num_paths;
 }
 
