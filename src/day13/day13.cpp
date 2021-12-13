@@ -5,17 +5,13 @@
 #include <sstream>
 #include <algorithm>
 #include <numeric>
-#include <queue>
-#include <map>
-#include <unordered_map>
+#include <set>
 
-struct point_t{
-    int x,y;
-};
+using set_t = std::set<std::pair<int,int>>;
 
 struct grid_t{
-    std::vector<int> points;
-    std::vector<point_t> folds;
+    set_t points;
+    std::vector<std::pair<char,int>> folds;
     int width;
     int height;
 };
@@ -25,8 +21,7 @@ grid_t load_input(const std::string& file){
     std::ifstream fs(file);
     int max_x = 0;
     int max_y = 0;
-    point_t point;
-    std::vector<point_t> points;
+    int x, y;
     char comma(',');
     std::string line;
     while (std::getline(fs, line)) {
@@ -34,19 +29,13 @@ grid_t load_input(const std::string& file){
             break;
         }
         std::istringstream ss(line);
-        ss >> point.x >> comma >> point.y;
-        points.push_back(point);
-        max_x = std::max(max_x, point.x);
-        max_y = std::max(max_y, point.y);
+        ss >> x >> comma >> y;
+        ret.points.insert({ x, y });
+        max_x = std::max(max_x,x);
+        max_y = std::max(max_y,y);
     }
-
     ret.width = max_x*2;
     ret.height = max_y*2;
-
-    ret.points.resize(ret.width*ret.height, 0);
-    for(auto& p : points){
-        ret.points[p.y*ret.width+p.x] = 1;
-    }
 
     char axis('x');
     int fold_point;
@@ -66,36 +55,45 @@ int do_folding(grid_t& grid, int num_folds, bool print)
 
     for(int f=0; f<num_folds; ++f){
         auto& fold = grid.folds[f];
-        if(fold.x == 'x'){
-            for(int y=0; y<grid.height; ++y){
-                for(int x=0; x<fold.y; ++x){
-                    grid.points[y*grid.width+x] |= grid.points[y*grid.width+(fold.y*2-x)];
-                    grid.points[y*grid.width+(fold.y*2-x)] = 0;
+        if(fold.first == 'x'){
+            for(auto point = grid.points.begin(); point != grid.points.end(); ) { // funky set erasure; erasing whilst iterating requires care
+                if(point->first > fold.second){
+                    grid.points.insert({ (fold.second*2 - point->first), point->second });
+                    point = grid.points.erase(point);
+                }else{
+                    point++;
                 }
             }
-            fold_x = std::min(fold_x, fold.y);
+            fold_x = std::min(fold_x, fold.second);
         }else{
-            for(int y=0; y<fold.y; ++y){
-                for(int x=0; x<grid.width; ++x){
-                    grid.points[y*grid.width+x] |= grid.points[(fold.y*2-y)*grid.width+x];
-                    grid.points[(fold.y*2-y)*grid.width+x] = 0;
+            for(auto point = grid.points.begin(); point != grid.points.end(); ) {
+                if(point->second > fold.second){
+                    grid.points.insert({ point->first, (fold.second*2 - point->second) });
+                    point = grid.points.erase(point);
+                }else{
+                    point++;
                 }
             }
-            fold_y = std::min(fold_y, fold.y);
+            fold_y = std::min(fold_y, fold.second);
         }
     }
 
-    int dots = 0;
-    if(print) std::cout << std::endl;
-    for(int y=0; y<fold_y; ++y){
-        for(int x=0; x<fold_x; ++x){
-            dots += grid.points[y*grid.width+x];
-            if(print) std::cout << (grid.points[y*grid.width+x] ? '#' : ' ');
+    if(print) {
+        std::vector<char> dots(fold_x*fold_y, ' ');
+        for(auto& point : grid.points){
+            dots[point.second * fold_x + point.first] = '#';
         }
-        if(print) std::cout << std::endl;
+
+        std::cout << std::endl;
+        for(int y=0; y<fold_y; ++y){
+            for(int x=0; x<fold_x; ++x){
+                std::cout << dots[y*fold_x+x];
+            }
+            std::cout << std::endl;
+        }
     }
 
-    return dots;
+    return (int)grid.points.size();
 }
 
 int part1(const grid_t& grid)
