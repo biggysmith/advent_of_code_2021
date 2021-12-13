@@ -91,7 +91,7 @@ int bfs(graph_t& g, const std::string& src, const std::string& dst, bool (*valid
     return num_paths;
 }
 
-void dfs(graph_t& g, std::vector<std::string> path, int& num_paths, bool (*valid_next_step)(const std::string&, const std::vector<std::string>&))
+void dfs(graph_t& g, std::vector<std::string>& path, int& num_paths, bool (*valid_next_step)(const std::string&, const std::vector<std::string>&))
 {
     std::string last = path.back();
     if(last == "end")
@@ -135,8 +135,10 @@ int part1(const std::vector<connection_t>& connections)
 {
     //return bfs(build_adjacency_graph(connections), "start", "end", valid_next_step1);
 
+    std::vector<std::string> path = { "start" };
+
     int num_paths = 0;
-    dfs(build_adjacency_graph(connections), { "start" }, num_paths, valid_next_step1);
+    dfs(build_adjacency_graph(connections), path, num_paths, valid_next_step1);
     return num_paths;
 }
 
@@ -144,8 +146,10 @@ int part2(const std::vector<connection_t>& connections)
 {
     //return bfs(build_adjacency_graph(connections), "start", "end", valid_next_step2);
 
+    std::vector<std::string> path = { "start" };
+
     int num_paths = 0;
-    dfs(build_adjacency_graph(connections), { "start" }, num_paths, valid_next_step2);
+    dfs(build_adjacency_graph(connections), path, num_paths, valid_next_step2);
     return num_paths;
 }
 
