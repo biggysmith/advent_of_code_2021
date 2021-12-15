@@ -39,19 +39,19 @@ size_t process(const instructions_t& data, int steps)
 
     for(int step=0; step<steps; ++step){
         std::map<std::string,size_t> new_combos;
-        for(auto& combo : combos){
-            if(combo.second){
-                new_combos[combo.first.substr(0,1) + data.instructions.at(combo.first)] += combo.second;
-                new_combos[data.instructions.at(combo.first) + combo.first.substr(1,2)] += combo.second;
+        for(auto& [pair, count] : combos){
+            if(count){
+                new_combos[pair.substr(0,1) + data.instructions.at(pair)] += count;
+                new_combos[data.instructions.at(pair) + pair.substr(1,2)] += count;
             } 
         }
         combos = new_combos;
     }
 
     std::map<char,size_t> hist;
-    for(auto& elements : combos){
-        hist[elements.first[0]] += elements.second;
-        hist[elements.first[1]] += elements.second;
+    for(auto& [pair, count] : combos){
+        hist[pair[0]] += count;
+        hist[pair[1]] += count;
     }
 
     auto round_up = [](size_t a,size_t b){
