@@ -44,6 +44,20 @@ std::string hex_to_bin(const std::string& hex){
     return binary;
 }
 
+template<class T = void>
+struct minimum_op {	
+    T operator()(const T& a, const T& b) const {
+	    return std::min(a, b);
+	}
+};
+
+template<class T = void>
+struct maximum_op {	
+    T operator()(const T& a, const T& b) const {
+	    return std::max(a, b);
+	}
+};
+
 int version(const std::string& s, int& pos){
     int ver = std::stoi(s.substr(pos, 3), 0, 2); pos+=3;
     return ver;
@@ -104,59 +118,30 @@ int process1(const std::string& s, int& pos, int& version_sum){
     return version_sum;
 }
 
-size_t sum(const std::vector<size_t>& args){
-    return std::accumulate(args.begin()+1, args.end(), args[0]);
-}
-
-size_t product(const std::vector<size_t>& args){
-    return std::accumulate(args.begin()+1, args.end(), args[0], std::multiplies<size_t>());
-}
-
-size_t minimum(const std::vector<size_t>& args){
-    return std::accumulate(args.begin()+1, args.end(), args[0], [](auto& a,auto& b){
-        return std::min(a,b);  
-    });
-}
-
-size_t maximum(const std::vector<size_t>& args){
-    return std::accumulate(args.begin()+1, args.end(), args[0], [](auto& a,auto& b){
-        return std::max(a,b);  
-    });
-}
-
-size_t greater_than(const std::vector<size_t>& args){
-    return std::accumulate(args.begin()+1, args.end(), args[0], std::greater<size_t>());
-}
-
-size_t less_than(const std::vector<size_t>& args){
-    return std::accumulate(args.begin()+1, args.end(), args[0], std::less<size_t>());
-}
-
-size_t equal_to(const std::vector<size_t>& args){
-    return std::accumulate(args.begin()+1, args.end(), args[0], std::equal_to<size_t>());
+size_t op(int id, const std::vector<size_t>& args){
+    if(id == 0){
+        return std::accumulate(args.begin()+1, args.end(), args[0], std::plus<size_t>());
+    }else if(id == 1){
+        return std::accumulate(args.begin()+1, args.end(), args[0], std::multiplies<size_t>());
+    }else if(id == 2){
+        return std::accumulate(args.begin()+1, args.end(), args[0], minimum_op<size_t>());
+    }else if(id == 3){
+        return std::accumulate(args.begin()+1, args.end(), args[0], maximum_op<size_t>());
+    }else if(id == 5){
+        return std::accumulate(args.begin()+1, args.end(), args[0], std::greater<size_t>());
+    }else if(id == 6){
+        return std::accumulate(args.begin()+1, args.end(), args[0], std::less<size_t>());
+    }else /*if(id == 7)*/{
+        return std::accumulate(args.begin()+1, args.end(), args[0], std::equal_to<size_t>());
+    }
 }
 
 size_t process2(const std::string& s, int& pos){
     int ver = version(s,pos);
     int id = type_id(s,pos);
 
-    auto op = sum;
-    if(id == 0){
-        op = sum;
-    }else if(id == 1){
-        op = product;
-    }else if(id == 2){
-        op = minimum;
-    }else if(id == 3){
-        op = maximum;
-    }else if(id == 4){
+    if(id == 4){
         return literal_value(s,pos);
-    }else if(id == 5){
-        op = greater_than;
-    }else if(id == 6){
-        op = less_than;
-    }else if(id == 7){
-        op = equal_to;
     }
 
     std::vector<size_t> args;
@@ -174,7 +159,7 @@ size_t process2(const std::string& s, int& pos){
         }
     }
 
-    return op(args);
+    return op(id, args);
 }
 
 size_t part1(const std::string& data)
