@@ -36,6 +36,14 @@ std::string hex_to_bin(char c)
     }
 }
 
+std::string hex_to_bin(const std::string& hex){
+    std::string binary;
+    for(auto c : hex){
+        binary += hex_to_bin(c);
+    }
+    return binary;
+}
+
 int version(const std::string& s, int& pos){
     int ver = std::stoi(s.substr(pos, 3), 0, 2); pos+=3;
     return ver;
@@ -72,7 +80,7 @@ int num_sub_packets(const std::string& s, int& pos){
     return ret;
 }
 
-void process1(const std::string& s, int& pos, int& version_sum){
+int process1(const std::string& s, int& pos, int& version_sum){
     int ver = version(s,pos);
     int id = type_id(s,pos);
     version_sum += ver;
@@ -92,6 +100,8 @@ void process1(const std::string& s, int& pos, int& version_sum){
             }
         }
     }
+
+    return version_sum;
 }
 
 size_t sum(const std::vector<size_t>& args){
@@ -151,8 +161,8 @@ size_t process2(const std::string& s, int& pos){
 
     std::vector<size_t> args;
 
-    int lid = length_type_id(s,pos);
-    if(lid == 0){
+    int len_id = length_type_id(s,pos);
+    if(len_id == 0){
         int len = sub_packet_length(s,pos) + pos;
         while(pos < len){
             args.push_back(process2(s,pos));
@@ -167,31 +177,17 @@ size_t process2(const std::string& s, int& pos){
     return op(args);
 }
 
-
-
 size_t part1(const std::string& data)
 {
-    std::string binary;
-    for(auto c : data){
-        binary += hex_to_bin(c);
-    }
-
-    int version_sum = 0;
     int pos = 0;
-    process1(binary,pos,version_sum);
-
-    return version_sum;
+    int version_sum = 0;
+    return process1(hex_to_bin(data), pos, version_sum);
 }
 
 size_t part2(const std::string& data)
 {
-    std::string binary;
-    for(auto c : data){
-        binary += hex_to_bin(c);
-    }
-
     int pos = 0;
-    return process2(binary,pos);
+    return process2(hex_to_bin(data), pos);
 }
 
 void main()
