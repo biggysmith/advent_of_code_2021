@@ -5,8 +5,11 @@
 #include <sstream>
 #include <algorithm>
 #include <numeric>
-#include "timer.hpp"
 #include <omp.h>
+
+#define COMMA -3
+#define LEFT_BRACKET -2
+#define RIGHT_BRACKET -1
 
 using list_t = std::vector<int>;
 
@@ -14,11 +17,11 @@ list_t string_to_int(const std::string& line){
     list_t ret;
     for(auto c : line){
         if(c == ','){
-            ret.push_back(-3);
+            ret.push_back(COMMA);
         }else if(c == '['){
-            ret.push_back(-2);
+            ret.push_back(LEFT_BRACKET);
         }else if(c == ']'){
-            ret.push_back(-1);
+            ret.push_back(RIGHT_BRACKET);
         }else{
             ret.push_back(c-'0');
         }
@@ -37,22 +40,22 @@ std::vector<list_t> load_input(const std::string& file){
 }
 
 list_t add(const list_t& a,const list_t& b){
-    list_t ret(a.size()+b.size()+3);
-    ret[0] = -2;
-    ret[1+a.size()] = -3;
-    ret[1+a.size()+1+b.size()] = -1;
-    std::copy(a.begin(), a.end(), ret.begin()+1);
-    std::copy(b.begin(), b.end(), ret.begin()+1+a.size()+1);
+    list_t ret(a.size()+b.size()+3);                    size_t pos = 0;
+    ret[pos] = LEFT_BRACKET;                            pos += 1; 
+    std::copy(a.begin(), a.end(), ret.begin()+pos);     pos += a.size();
+    ret[pos] = COMMA;                                   pos += 1;
+    std::copy(b.begin(), b.end(), ret.begin()+pos);     pos += b.size();
+    ret[pos] = RIGHT_BRACKET;
     return ret;
 }
 
 void print(const list_t& a){
     for(auto i : a){
-        if(i == -3){
+        if(i == COMMA){
             std::cout << ',';
-        }else if(i == -2){
+        }else if(i == LEFT_BRACKET){
             std::cout << '[';
-        }else if(i == -1){
+        }else if(i == RIGHT_BRACKET){
             std::cout << ']';
         }else{
             std::cout << i;
@@ -65,27 +68,27 @@ bool explode(list_t& str)
 {
     int depth = 1;
     for(int i=1; i<str.size()-1; ++i){
-        if(str[i] == -2){
+        if(str[i] == LEFT_BRACKET){
             depth++;
         }
 
-        if(str[i] == -1){
+        if(str[i] == RIGHT_BRACKET){
             depth--;
         }
 
-        if(str[i-1] >= 0 && str[i]==-3 && str[i+1] >= 0 && depth >= 5){
-            int lv = str[i-1];
-            int rv = str[i+1];
-
+        if(depth >= 5 && str[i-1] >= 0 && str[i]==COMMA && str[i+1] >= 0){
+            int left = str[i-1];
             for(int j=i-2; j>=0; --j){
                 if(str[j] >= 0){
-                    str[j] += lv;
+                    str[j] += left;
                     break;
                 }
             }
+
+            int right = str[i+1];
             for(int j=i+2; j<str.size(); ++j){
                 if(str[j] >= 0){
-                    str[j] += rv;
+                    str[j] += right;
                     break;
                 }
             }
@@ -103,7 +106,7 @@ bool split(list_t& str)
 {
     for(int i=0; i<str.size(); ++i){
         if(str[i] >= 10){
-            str.insert(str.begin()+i+1, { -2, (int)floor(str[i]*0.5f), -3, (int)ceil(str[i]*0.5f), -1 });
+            str.insert(str.begin()+i+1, { LEFT_BRACKET, (int)floor(str[i]*0.5f), COMMA, (int)ceil(str[i]*0.5f), RIGHT_BRACKET });
             str.erase(str.begin()+i, str.begin()+i+1);
             return true;
         }
@@ -111,24 +114,22 @@ bool split(list_t& str)
     return false;
 }
 
-int magnitude(const list_t& str_in, int& pos)
+int magnitude(list_t str, int& pos)
 {
-    auto str = str_in;
-
     while(true){
         for(int i=0; i<str.size()-2; ++i){
-            if(str[i] >=0 && str[i+1] == -3 && str[i+2] >= 0){
+            if(str[i] >= 0 && str[i+1] == COMMA && str[i+2] >= 0){
                 int mag = 3*str[i] + 2*str[i+2];
-                str.erase(str.begin()+i-1, str.begin()+i+3+1);
-                if(str.empty()){
+                if(str.size() == 5){
                     return mag;
                 }
+                str.erase(str.begin()+i-1, str.begin()+i+4);
                 str.insert(str.begin()+i-1, { mag });
             }
         }
     }
 
-    return -1;
+    return -1; // should get here
 }
 
 int magnitude(const list_t& str){
@@ -137,18 +138,13 @@ int magnitude(const list_t& str){
 }
 
 void reduce(list_t& str){
-    while(true){
-        if(!explode(str)){
-            if(!split(str)){
-                break;
-            }
-        }
+    while(explode(str) || split(str)){
     };
 }
 
 size_t part1(const std::vector<list_t>& numbers)
 {
-    std::vector<int> a = numbers[0];
+    list_t a = numbers[0];
     for(int i=1; i<numbers.size(); ++i){
         a = add(a,numbers[i]);
         reduce(a);
@@ -159,7 +155,7 @@ size_t part1(const std::vector<list_t>& numbers)
 
 size_t part2(const std::vector<list_t>& numbers)
 {
-    std::vector<int> hishests(omp_get_max_threads(), 0);
+    list_t hishests(omp_get_max_threads(), 0);
 
     #pragma omp parallel for
     for(int y=0; y<numbers.size(); ++y){
@@ -168,9 +164,9 @@ size_t part2(const std::vector<list_t>& numbers)
             reduce(a);
             hishests[omp_get_thread_num()] = std::max(hishests[omp_get_thread_num()], magnitude(a));
 
-            auto b = add(numbers[y],numbers[x]);
-            reduce(b);
-            hishests[omp_get_thread_num()] = std::max(hishests[omp_get_thread_num()], magnitude(b));
+            a = add(numbers[y],numbers[x]);
+            reduce(a);
+            hishests[omp_get_thread_num()] = std::max(hishests[omp_get_thread_num()], magnitude(a));
         }
     }
 
