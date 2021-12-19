@@ -99,7 +99,7 @@ bool split(list_t& str)
     return false;
 }
 
-int magnitude(list_t str, int& pos)
+int magnitude(list_t str)
 {
     while(true){
         for(int i=0; i<str.size()-2; ++i){
@@ -115,11 +115,6 @@ int magnitude(list_t str, int& pos)
     }
 
     return -1; // should get here
-}
-
-int magnitude(const list_t& str){
-    int pos = 0;
-    return magnitude(str, pos);
 }
 
 void reduce(list_t& str){
