@@ -49,21 +49,6 @@ list_t add(const list_t& a,const list_t& b){
     return ret;
 }
 
-void print(const list_t& a){
-    for(auto i : a){
-        if(i == COMMA){
-            std::cout << ',';
-        }else if(i == LEFT_BRACKET){
-            std::cout << '[';
-        }else if(i == RIGHT_BRACKET){
-            std::cout << ']';
-        }else{
-            std::cout << i;
-        }
-    }
-    std::cout << std::endl;
-}
-
 bool explode(list_t& str)
 {
     int depth = 1;
