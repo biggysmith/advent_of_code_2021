@@ -138,16 +138,10 @@ size_t part2(const std::vector<list_t>& numbers)
     list_t hishests(omp_get_max_threads(), 0);
 
     #pragma omp parallel for
-    for(int y=0; y<numbers.size(); ++y){
-        for(int x=y+1; x<numbers.size(); ++x){
-            auto a = add(numbers[x],numbers[y]);
-            reduce(a);
-            hishests[omp_get_thread_num()] = std::max(hishests[omp_get_thread_num()], magnitude(a));
-
-            a = add(numbers[y],numbers[x]);
-            reduce(a);
-            hishests[omp_get_thread_num()] = std::max(hishests[omp_get_thread_num()], magnitude(a));
-        }
+    for(int i=0; i<numbers.size()*numbers.size(); ++i){
+        auto a = add(numbers[i%numbers.size()],numbers[i/numbers.size()]);
+        reduce(a);
+        hishests[omp_get_thread_num()] = std::max(hishests[omp_get_thread_num()], magnitude(a));
     }
 
     return std::accumulate(hishests.begin(), hishests.end(), 0, [](auto& a,auto& b){
