@@ -24,7 +24,6 @@ struct algo_t{
     image_t enhancement;
 };
 
-
 algo_t load_input(const std::string& file){
     algo_t ret;
     std::ifstream fs(file);
@@ -48,24 +47,14 @@ algo_t load_input(const std::string& file){
     return ret;
 }
 
-void print_image(const image_t& image){
-    std::cout << std::endl;
-    for(int y=2; y<image.height-2; ++y){
-        for(int x=2; x<image.width-2; ++x){
-            std::cout << image.get(x,y);
-        }   
-        std::cout << std::endl;
-    }
-}
-
 size_t process(const algo_t& algo, int steps)
 {
     scoped_timer timer;
 
-    int buffer = steps+5;
+    int buffer = steps+3;
 
-    int new_width = (algo.img.width+buffer*2);
-    int new_height = (algo.img.height+buffer*2);
+    int new_width = algo.img.width + buffer*2;
+    int new_height = algo.img.height + buffer*2;
 
     image_t dst0 { std::vector<char>(new_width*new_width, '.'), new_width, new_height };
     image_t dst1 { std::vector<char>(new_width*new_width, '.'), new_width, new_height };
@@ -78,31 +67,31 @@ size_t process(const algo_t& algo, int steps)
 
     for(int i=0; i<steps; ++i){
 
-        std::fill(dst1.data.begin(), dst1.data.end(), (i%2==0) ? algo.enhancement.data.front() : algo.enhancement.data.back());
+        std::fill(dst1.data.begin(), dst1.data.end(), 'p'); // padding
 
-        int offset = buffer-i;
-
-        #pragma omp parallel for 
+        #pragma omp parallel for schedule(dynamic,1)
         for(int y=2; y<dst0.height-2; ++y){
             for(int x=2; x<dst0.width-2; ++x){
 
-                    std::string binary;
-                    for(int j=-1; j<2; ++j){
-                        for(int i=-1; i<2; ++i){
-                            binary += dst0.get(x+i,y+j) == '#' ? "1" : "0";
+                std::string binary;
+                for(int j=-1; j<2; ++j){
+                    for(int i=-1; i<2; ++i){
+                        char c = dst0.get(x+i,y+j);
+                        if(c == 'p'){
+                            continue;
                         }
+                        binary += c == '#' ? "1" : "0";
                     }
+                }
 
-                    int dec = std::stoi(binary, 0, 2);
-                    dst1.get(x,y) = algo.enhancement.data[dec];
+                int dec = std::stoi(binary, 0, 2);
+                dst1.get(x,y) = algo.enhancement.data[dec];
 
             }
         }
 
         std::swap(dst0, dst1);
     }
-
-    //print_image(dst0);
 
     int sum = 0;
     for(int y=2; y<dst0.height-2; ++y){
