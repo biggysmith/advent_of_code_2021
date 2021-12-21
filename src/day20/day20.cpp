@@ -9,7 +9,6 @@
 #include <map>
 #include <functional>
 #include <iterator>
-#include "timer.hpp"
 
 struct image_t{
     std::vector<char> data;
@@ -49,8 +48,6 @@ algo_t load_input(const std::string& file){
 
 size_t process(const algo_t& algo, int steps)
 {
-    scoped_timer timer;
-
     int buffer = steps+3;
 
     int new_width = algo.img.width + buffer*2;
@@ -65,8 +62,8 @@ size_t process(const algo_t& algo, int steps)
         }
     }
 
-    for(int i=0; i<steps; ++i){
-
+    for(int i=0; i<steps; ++i)
+    {
         std::fill(dst1.data.begin(), dst1.data.end(), 'p'); // padding
 
         #pragma omp parallel for schedule(dynamic,1)
@@ -77,10 +74,9 @@ size_t process(const algo_t& algo, int steps)
                 for(int j=-1; j<2; ++j){
                     for(int i=-1; i<2; ++i){
                         char c = dst0.get(x+i,y+j);
-                        if(c == 'p'){
-                            continue;
+                        if(c != 'p'){
+                            binary += c == '#' ? "1" : "0";
                         }
-                        binary += c == '#' ? "1" : "0";
                     }
                 }
 
