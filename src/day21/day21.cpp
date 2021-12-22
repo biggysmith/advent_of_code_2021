@@ -65,7 +65,7 @@ struct wins_t{
 
 std::unordered_map<game_t,wins_t,game_hash_t> seen;
 
-wins_t step(game_t& g)
+wins_t step(const game_t& g)
 {
     if(g.p1_score >= 21){
         return wins_t { 1, 0 };
