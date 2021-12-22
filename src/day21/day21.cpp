@@ -75,7 +75,7 @@ wins_t step(const game_t& g)
         return wins_t { 0, 1 };
     }
 
-    if(seen.count(g)){
+    if(seen.find(g) != seen.end()){
         return seen.at(g);
     }
 
