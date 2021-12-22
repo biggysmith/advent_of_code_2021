@@ -35,11 +35,11 @@ int part1(int p1_pos, int p2_pos){
 }
 
 struct game_t{
-    unsigned char p1_pos;
-    unsigned char p2_pos;  
-    unsigned char p1_score = 0;
-    unsigned char p2_score = 0;
-    unsigned char turn = 0;
+    int p1_pos;
+    int p2_pos;  
+    int p1_score = 0;
+    int p2_score = 0;
+    int turn = 0;
 };
 
 struct game_hash_t {
