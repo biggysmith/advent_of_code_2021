@@ -111,7 +111,7 @@ wins_t step(const game_t& g)
     return wins;
 }
 
-size_t part2(unsigned char p1_pos, unsigned char p2_pos)
+size_t part2(int p1_pos, int p2_pos)
 {
     game_t game = { p1_pos, p2_pos };
     wins_t wins = step(game);
