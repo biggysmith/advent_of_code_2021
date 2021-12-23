@@ -69,30 +69,30 @@ cuboid_t intersect(const cuboid_t& a, const cuboid_t& b) {
     return { mn, mx, true, add_vol };
 }
 
-int64_t process(const std::vector<cuboid_t>& cubes, bool part1)
+int64_t process(const std::vector<cuboid_t>& cuboids, bool part1)
 {
     std::vector<cuboid_t> intersections;
-    for(auto& cube : cubes){
+    for(auto& cuboid : cuboids){
 
-        if(part1 && !a_inside_b(cube, {{-50,-50,-50},{50,50,50}})){
+        if(part1 && !a_inside_b(cuboid, {{-50,-50,-50},{50,50,50}})){
             continue;
         }
 
         std::vector<cuboid_t> new_intersections;
-        if(cube.on){
-            new_intersections.push_back(cube);
+        if(cuboid.on){
+            new_intersections.push_back(cuboid);
         }
 
         for(auto& intersection : intersections){
-            if(a_intersects_b(intersection, cube)){
-                new_intersections.push_back(intersect(intersection, cube));
+            if(a_intersects_b(intersection, cuboid)){
+                new_intersections.push_back(intersect(intersection, cuboid));
             }
         }
 
         intersections.insert(intersections.end(), new_intersections.begin(), new_intersections.end());
     }
 
-    return std::accumulate(intersections.begin(), intersections.end(), (int64_t)0, [&](auto& a,auto& b){
+    return std::accumulate(intersections.begin(), intersections.end(), 0LL, [&](auto& a,auto& b){
         return a + (b.add_vol ? volume(b) : -volume(b)); // vol(A) + vol(B) - vol(A n B)
     });
 }
