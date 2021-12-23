@@ -64,7 +64,7 @@ std::vector<cuboid_t> load_input(const std::string& file){
 
 cuboid_t intersect(const cuboid_t& a, const cuboid_t& b) {
     vec3_t mn = maximum(a.mn, b.mn);
-    vec3_t mx = maximum(minimum(a.mx, b.mx), mn-vec3_t{1,1,1});
+    vec3_t mx = minimum(a.mx + vec3_t{1,1,1}, b.mx + vec3_t{1,1,1}) - vec3_t{1,1,1};
     return { mn, mx, true, a.add_vol ^ b.add_vol ? true : false };
 }
 
