@@ -17,7 +17,7 @@ struct cuboid_t{
     vec3_t mn;
     vec3_t mx;
     bool on;
-    int sign = 1;
+    bool add_vol = true;
 };
 
 vec3_t operator-(const vec3_t& a,const vec3_t& b){ return { a.x - b.x, a.y - b.y, a.z - b.z }; }
@@ -28,13 +28,20 @@ vec3_t minimum(const vec3_t& a,const vec3_t& b){ return { std::min(a.x,b.x), std
 vec3_t maximum(const vec3_t& a,const vec3_t& b){ return { std::max(a.x,b.x), std::max(a.y,b.y), std::max(a.z,b.z) }; }
 
 int64_t volume(const cuboid_t& c){
-    return c.sign * dot(c.mx - c.mn + vec3_t{ 1, 1, 1 });
+    return dot(c.mx - c.mn + vec3_t{ 1, 1, 1 });
 }
 
-bool inside(const cuboid_t& a,const cuboid_t& b){
+bool a_inside_b(const cuboid_t& a,const cuboid_t& b){
     if (a.mn.x < b.mn.x || a.mx.x > b.mx.x) return false;
     if (a.mn.y < b.mn.y || a.mx.y > b.mx.y) return false;
     if (a.mn.z < b.mn.z || a.mx.z > b.mx.z) return false;
+    return true;
+}
+
+bool a_intersects_b(const cuboid_t& a,const cuboid_t& b){
+    if (a.mx.x < b.mn.x || a.mn.x > b.mx.x) return false;
+    if (a.mx.y < b.mn.y || a.mn.y > b.mx.y) return false;
+    if (a.mx.z < b.mn.z || a.mn.z > b.mx.z) return false;
     return true;
 }
 
@@ -58,40 +65,36 @@ std::vector<cuboid_t> load_input(const std::string& file){
 cuboid_t intersect(const cuboid_t& a, const cuboid_t& b) {
     vec3_t mn = maximum(a.mn, b.mn);
     vec3_t mx = maximum(minimum(a.mx, b.mx), mn-vec3_t{1,1,1});
-    return { mn, mx, true, -1 * a.sign * b.sign };
+    return { mn, mx, true, a.add_vol ^ b.add_vol ? true : false };
 }
 
 int64_t process(const std::vector<cuboid_t>& cubes, bool limit)
 {
-    int64_t on_count = 0;
-
     std::vector<cuboid_t> intersections;
     for(auto& cube : cubes){
 
-        if(limit && !inside(cube, {{-50,-50,-50},{50,50,50}})){
+        if(limit && !a_inside_b(cube, {{-50,-50,-50},{50,50,50}})){
             continue;
         }
 
-        int size = (int)intersections.size();
-        for(int i=0; i<size; ++i){
-            cuboid_t inter = intersect(intersections[i], cube);
-            auto v = volume(inter);
-            if(v != 0){
-                on_count += v;
-                intersections.push_back(inter);
+        std::vector<cuboid_t> new_intersections;
+        if(cube.on){
+            new_intersections.push_back(cube);
+        }
+
+        for(auto& intersection : intersections){
+            if(a_intersects_b(intersection, cube)){
+                new_intersections.push_back(intersect(intersection, cube));
             }
         }
 
-        if(cube.on){
-            auto v = volume(cube);
-            on_count += v;
-            intersections.push_back(cube);
-        }
+        intersections.insert(intersections.end(), new_intersections.begin(), new_intersections.end());
     }
 
-    return on_count;
+    return std::accumulate(intersections.begin(), intersections.end(), (int64_t)0, [&](auto& a,auto& b){
+        return a + (b.add_vol ? volume(b) : -volume(b)); // vol(A) + vol(B) - vol(A n B)
+    });
 }
-
 
 void main()
 {
@@ -99,19 +102,9 @@ void main()
     auto test_values1 = load_input("../src/day22/example_input1.txt");
     auto actual_values = load_input("../src/day22/input.txt");
 
-    auto p1 = process(test_values, true);
-    auto p2 = process(actual_values, true);
-    auto p3 = process(test_values1, false);
-    auto p4 = process(actual_values, false);
+    std::cout << "part1: " << process(test_values, true) << std::endl;
+    std::cout << "part1: " << process(actual_values, true) << std::endl;
 
-    if(p1 != 590784) std::cout << "error" << std::endl;
-    if(p2 != 580098) std::cout << "error" << std::endl;
-    if(p3 != 2758514936282235) std::cout << "error" << std::endl;
-    if(p4 != 1134725012490723) std::cout << "error" << std::endl;
-
-    std::cout << "part1: " << p1 << std::endl;
-    std::cout << "part1: " << p2 << std::endl;
-
-    std::cout << "part2: " << p3 << std::endl;
-    std::cout << "part2: " << p4 << std::endl;
+    std::cout << "part2: " << process(test_values1, false) << std::endl;
+    std::cout << "part2: " << process(actual_values, false) << std::endl;
 }
