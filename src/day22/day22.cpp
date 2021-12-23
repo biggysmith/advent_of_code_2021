@@ -68,12 +68,12 @@ cuboid_t intersect(const cuboid_t& a, const cuboid_t& b) {
     return { mn, mx, true, a.add_vol ^ b.add_vol ? true : false };
 }
 
-int64_t process(const std::vector<cuboid_t>& cubes, bool limit)
+int64_t process(const std::vector<cuboid_t>& cubes, bool part1)
 {
     std::vector<cuboid_t> intersections;
     for(auto& cube : cubes){
 
-        if(limit && !a_inside_b(cube, {{-50,-50,-50},{50,50,50}})){
+        if(part1 && !a_inside_b(cube, {{-50,-50,-50},{50,50,50}})){
             continue;
         }
 
