@@ -63,10 +63,7 @@ std::vector<cuboid_t> load_input(const std::string& file){
 }
 
 cuboid_t intersect(const cuboid_t& a, const cuboid_t& b) {
-    vec3_t mn = maximum(a.mn, b.mn);
-    vec3_t mx = minimum(a.mx + vec3_t{1,1,1}, b.mx + vec3_t{1,1,1}) - vec3_t{1,1,1};
-    bool add_vol = a.add_vol ^ b.add_vol;
-    return { mn, mx, true, add_vol };
+    return { maximum(a.mn, b.mn), minimum(a.mx, b.mx), true, bool(a.add_vol ^ b.add_vol) };
 }
 
 int64_t process(const std::vector<cuboid_t>& cuboids, bool part1)
