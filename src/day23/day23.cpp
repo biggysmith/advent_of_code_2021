@@ -177,7 +177,7 @@ bool contains(const Con& c,const T& t){
     return c.find(t) != c.end();
 }
 
-int dijkstra(const burrow_t& burrow, const burrow_t& dst)
+int dijkstra(const burrow_t& src, const burrow_t& dst)
 {
     std::map<char,int> energy_cost = {{'A', 1}, {'B', 10}, {'C', 100}, {'D', 1000}};
 
@@ -186,13 +186,13 @@ int dijkstra(const burrow_t& burrow, const burrow_t& dst)
     std::unordered_set<burrow_t,burrow_hash_t> visited;
     std::unordered_map<burrow_t,int,burrow_hash_t> cost;
 
-    auto move_map = generate_move_map(burrow.num_rooms);
+    auto move_map = generate_move_map(src.num_rooms);
 
-    cost[burrow] = 0;
-    q.push(burrow);
+    cost[src] = 0;
+    q.push(src);
 
     std::vector<burrow_t> path;
-    path.push_back(burrow);
+    path.push_back(src);
 
     while (!q.empty()) {
         burrow_t curr = q.top();
