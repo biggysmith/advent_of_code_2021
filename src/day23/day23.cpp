@@ -214,7 +214,7 @@ int dijkstra(const burrow_t& src, const burrow_t& dst)
                 if(!contains(visited,new_burrow)){
                     cost.try_emplace(new_burrow,INT_MAX);
                     if(cost[curr] + move_cost < cost[new_burrow]){
-                        cost[new_burrow] = std::min(cost[new_burrow], cost[curr] + move_cost);
+                        cost[new_burrow] = cost[curr] + move_cost;
                         new_burrow.energy = cost[new_burrow];
                         q.push(new_burrow);
                     }
