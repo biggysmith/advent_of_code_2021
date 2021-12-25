@@ -18,23 +18,6 @@ bool operator<(const move_t& a,const move_t& b){
     return std::make_tuple(a.room,a.hallway) < std::make_tuple(b.room,b.hallway);
 }
 
-/*
-std::map<move_t,int> move_map = {
-    {{0,0}, 3}, {{0,1}, 2}, {{0,3}, 2}, {{0,5}, 4}, {{0,7}, 6}, {{0,9}, 8}, {{0,10}, 9},
-    {{4,0}, 4}, {{4,1}, 3}, {{4,3}, 3}, {{4,5}, 5}, {{4,7}, 7}, {{4,9}, 9}, {{4,10}, 10},
-
-    {{1,0}, 5}, {{1,1}, 4}, {{1,3}, 2}, {{1,5}, 2}, {{1,7}, 4}, {{1,9}, 6}, {{1,10}, 7},
-    {{5,0}, 6}, {{5,1}, 5}, {{5,3}, 3}, {{5,5}, 3}, {{5,7}, 5}, {{5,9}, 7}, {{5,10}, 8},
-
-    {{2,0}, 7}, {{2,1}, 6}, {{2,3}, 4}, {{2,5}, 2}, {{2,7}, 2}, {{2,9}, 4}, {{2,10}, 5},
-    {{6,0}, 8}, {{6,1}, 7}, {{6,3}, 5}, {{6,5}, 3}, {{6,7}, 3}, {{6,9}, 5}, {{6,10}, 6},
-
-    {{3,0}, 9}, {{3,1}, 8}, {{3,3}, 6}, {{3,5}, 4}, {{3,7}, 2}, {{3,9}, 2}, {{3,10}, 3},
-    {{7,0}, 10}, {{7,1}, 9}, {{7,3}, 7}, {{7,5}, 5}, {{7,7}, 3}, {{7,9}, 3}, {{7,10}, 4}
-};*/
-
-
-
 struct burrow_t{
     burrow_t() {}
 
@@ -147,7 +130,7 @@ struct burrow_t{
                 }
             }
         }else{
-            for(int i=h-1; i>=std::max(2,c2-1); --i){ // left path to room clear?
+            for(int i=h-1; i>=std::max(2,c2+1); --i){ // left path to room clear?
             //for(int i=h-1; i>=2; --i){ // left path to room clear?
             //for(int i=h-1; i>1; --i){ // left path to room clear?
                 if(!hallway_empty(i)){
@@ -446,7 +429,7 @@ int dijkstra(const burrow_t& burrow, const burrow_t& dst)
         print(p);
     }*/
 
-    /*std::vector<burrow_t> solution;
+   /* std::vector<burrow_t> solution;
     solution.push_back(dst);
 
     auto target = parent[dst];
@@ -564,8 +547,8 @@ void main()
     std::cout << "part1: " << part1(actual_values) << std::endl;
 
     auto test_values0 = load_input("../src/day23/example_input0.txt", 16);
-    auto actual_values0 = load_input("../src/day23/input.txt", 16);
+    auto actual_values0 = load_input("../src/day23/input0.txt", 16);
 
     std::cout << "part2: " << part2(test_values0) << std::endl;
-    //std::cout << "part2: " << part2(actual_values) << std::endl;
+    std::cout << "part2: " << part2(actual_values0) << std::endl;
 }
