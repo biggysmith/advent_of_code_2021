@@ -167,6 +167,15 @@ size_t part2(const alu_progam_t& prog, const std::string& order)
         -> new_r2 = (r2 - r3 - plus1) / 26
         -> (new_r2 / div) = (r2 - r3 - plus1) / 26
         -> new_r2 = ((r2 - r3 - plus1) / 26) * div
+
+        -> r0 = (r2 mod 26) + plus0;
+        -> r0 = -26*floor(r2/26) + plus0 + r2;
+        -> r3 = -26*r2/26 + plus0 + r2; 
+        -> r3 = -r2 + plus0 + r2; 
+        -> r3 = -r2*div + plus0 + new_r2; 
+        -> r3 - plus0 = -r2*div + new_r2; 
+        -> r3 - plus0 + r2*div = new_r2; 
+        -> new_r2 = r3 - plus0 + r2*div; 
     */
 
     std::set<register_t> regs { {0,0,0,0} };
